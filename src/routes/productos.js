@@ -1,46 +1,89 @@
 const express = require('express')
 const router = express.Router()
 
-// Lista de productos 
+const productoModel = require('../models/productoModel')
 
-let productos = []
+// Método Get de HTTP para consultar
+router.get('/',  (req, res) => {
+    
+    productoModel.obtenerProductos((error, resultados) => {
 
-// Metodo Get de HTTP para consultar 
+        if(error) {
+            res.status(500).send({error: 'Error consultando los productos'})
+        }
+        else {
+            res.json(resultados)
+        }
 
-router.get('/', (req,res) => {
-    res.json(productos)
+    })
+
 })
 
-// Metodo Post para crear el producto 
+// Método POST para crear
+router.post('/', (req, res) => {
+    const producto = req.body
+    
+    productoModel.crearProducto(producto, (error, resultado) => {
 
-router.post('/', (req,res) => {
-    const producto = req.body 
-    producto.id = productos.length + 1
-    productos.push(producto) // aqui estamos enviando a la lista con push
-    res.json(producto)
+        if(error) {
+            res.status(500).send({error: 'Error creando el producto'})
+        }
+        else {
+            producto.id = resultado.insertId
+
+            res.status(201).json(producto)
+        }
+    })
+
 })
 
-// Metodo PUT para actualizar algun producto 
- router.put ('/:id', (req, res)=>{
+// Método PUT para actualizar
+router.put('/:id', (req, res) => {
     const id = parseInt(req.params.id)
-    const producto = productos.find(p => p.id === id)
+    
+    const producto = req.body
+    
+    productoModel.actualizarProducto(id, producto, (error, resultado) => {
 
-    if(producto) {
-        const nuevoProducto = req.body 
-        producto.nombre= nuevoProducto.nombre 
-        res.json(producto)
-    }
-    else {
-        res.status(404).send('Producto no encontrado')
-    }
- })
+        if(error) {
+            res.status(500).send({ error: 'Error actualizando el producto'})
+        }
+        else {
+
+            if(resultado.affectedRows === 0) {
+                res.status(404).send({ error: 'Producto no encontrado'})
+            }
+            else {
+                res.send({ msg: 'Producto Actualizado'})
+            }
+        }
+
+    })
+})
 
 
- //Metodo DELETE del protocolo HTTP oara eliminar 
- router.delete('/:id', (req,res)=>{
+// Método DELETE del protocolo HTTP para eliminar
+router.delete('/:id', (req, res) => {
     const id = parseInt(req.params.id)
-    productos = productos.filter((p=> p.id !=id))
-    res.send('Eliminado')
- })
+    
+    productoModel.eliminarProducto(id, (error, resultado) => {
 
- module.exports = router
+        if(error) {
+            res.status(500).send({error: 'Error eliminando el producto'})
+        }
+        else {
+
+            if(resultado.affectedRows === 0) {
+                res.status(404).send({ error: 'Producto no encontrado'})
+            }
+            else {
+                res.send({ msg: 'Producto Eliminado'})
+            }
+        
+        }
+
+    })
+
+})
+
+module.exports = router

@@ -1,46 +1,48 @@
-const db =require('../db')
+const db = require('../db')
 
-// Obtener los productos 
-const obtenerProducto = (callback) => {
+// Obtener los productos
+const obtenerProductos = (callback) => {
     const sql = 'SELECT * FROM productos'
 
     db.query(sql, callback)
 }
 
-// Crear un nuevo producto 
-
+// Crear producto
 const crearProducto = (producto, callback) => {
-    const sql = 'INSERT INTO producto(nombre, precio) VALUES (?,?)'
+    const sql = 'INSERT INTO productos(nombre, precio) VALUES (?, ?)'
 
     db.query(
         sql,
-        [producto.nombre,producto.precio],
+        [producto.nombre, producto.precio],
         callback
     )
 }
 
-// Actualizar producto 
+// Actualizar Producto 
+const  actualizarProducto = (id, producto, callback)  => {
+    const sql = 'UPDATE productos SET nombre = ?, precio = ? WHERE id = ?'
 
-const actualizarProducto =(id,producto,callback) => {
-    const sql = 'UPDATE productos SET nombre =?, precio= ?, WHERE id =?'
-
-    db.query(sql, 
-        [producto.nombre, producto.precio, id],
+    db.query(
+        sql, 
+        [producto.nombre, producto.precio, id], 
         callback
     )
 }
 
-// Eliminar Producto 
+// Eliminar Producto
+const eliminarProducto = (id, callback) => {
+    const sql = 'DELETE FROM productos WHERE id = ?'
 
-const eliminarProducto =(id,callback) =>{
-    const sql = 'DELETE FROM productos WHERE id=?'
-
-    db.query(sql, [id],callback)
+    db.query(
+        sql, 
+        [id], 
+        callback
+    )
 }
 
 
 module.exports = {
-    obtenerProducto,
+    obtenerProductos,
     crearProducto,
     actualizarProducto,
     eliminarProducto
